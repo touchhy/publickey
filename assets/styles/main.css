@@ -1,0 +1,23 @@
+.container .header {
+	border-radius: 6px;
+}
+.header {
+	padding-top: 30px;
+	padding-bottom: 30px;
+	margin-bottom: 30px;
+	background-color: #eee;
+}
+
+.header p {
+  margin-bottom: 15px;
+  font-size: 21px;
+  font-weight: 200;
+}
+
+.container form {
+	padding-bottom: 30px;
+}
+
+.container li p {
+	font-size: 21px;
+}

@@ -1,9 +1,14 @@
 <div class="container">
-
-    <h1>Your Node Express App</h1>
-  <form action="/save" method="POST">
-   <textarea name="publicKey"></textarea>
-   <button type='submit'>Submit</button>
- </form>
+	<form action="/save" method="POST">
+		<div class="form-group">
+			<label>Paste your public key here:</label>
+			<textarea class="form-control" rows="3" name="publicKey"></textarea>
+		</div>
+	 	<button class="btn btn-primary" type='submit'>Submit</button>
+	</form>
 
 </div>
+<div class="container">
+	{{#list machineNames}}{{/list}}
+</div>
+ 

@@ -12,7 +12,7 @@ module.exports = function (grunt) {
         watch: {
             files: ['views/**/*'],
             options: {
-                livereload: true
+                livereload: 35730
             },
             scripts: {
                 files: [

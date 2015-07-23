@@ -4,22 +4,22 @@
  * Express Dependencies
  */
 var express = require('express');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
+var compression = require('compression');
 var fs = require('fs');
 var app = express();
-var port = 3003;
+var port = 3000; 
 
 /*
  * Use Handlebars for templating
  */
-var exphbs = require('express3-handlebars');
+var exphbs = require('express-handlebars');
 var hbs;
 
 // For gzip compression
-app.use(express.compress());
-app.use( bodyParser.json() ); 
+app.use(compression());
+app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: false }));
-
 
 /*
  * Config for Production and Development
@@ -58,23 +58,61 @@ app.set('view engine', 'handlebars');
 
 
 
+var filename = '/tmp/test.txt';
+
 /*
  * Routes
  */
 // Index Page
 app.get('/', function(request, response, next) {
-    response.render('index');
-});
-app.post('/save',function(request,response){
-   var publicKey = request.body.publicKey;
-   publicKey = publicKey.trim();
-   var removeIndex = publicKey.indexOf('\n');
-   if(removeIndex!=-1){
-    publicKey = publicKey.subStr(0,removeIndex);
-   }
-   fs.appendFileSync('/Users/bzhang/.ssh/authorize', publicKey+"\n");
+  fs.readFile(filename, function (err, data) {
+    if (err) throw err;
+    console.log(data.length);
+    var result = [];
 
-   response.redirect('/');
+    var lines = data.toString().split('\n');
+    console.log(lines);
+    
+    for(var i=0, l = lines.length; i<l; i ++){
+      if(!lines[i]){
+        continue;
+      }
+      var tokens = lines[i].split(' ');
+      if(tokens.length >= 3) {
+        result.push(tokens[2]);
+      }
+    }
+    response.render('index', {
+      machineNames: result,
+      helpers: {
+        list: function(items) {
+          var out = "<ul>";
+          for(var i=0, l=items.length; i<l; i++) {
+            out = out + "<li><p>" + items[i] + "</p></li>";
+          }
+          return out + "</ul>";
+        }
+      }
+    });
+  });    
+});
+
+app.post('/save',function(request,response){
+  var publicKey = request.body.publicKey;
+  publicKey = publicKey.trim();
+  if(!publicKey) {
+    response.redirect('/')
+  } 
+  var removeIndex = publicKey.indexOf('\n');
+  if(removeIndex!=-1){
+    publicKey = publicKey.subStr(0,removeIndex);
+  }
+  fs.appendFile(filename, publicKey + '\n', function(err, data) {
+    if(err) {
+      response.render('index', err);
+    }
+    response.redirect('/');
+  });
 });
 
 
