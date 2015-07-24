@@ -5,7 +5,8 @@
   "dependencies": {
     "body-parser": "^1.13.2",
     "express": "~4.13.1",
-    "express-handlebars": "~2.0.1"
+    "express-handlebars": "~2.0.1",
+    "compression": "~1.5.1"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
