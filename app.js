@@ -60,18 +60,25 @@ app.set('view engine', 'handlebars');
 
 var filename = '/tmp/test.txt';
 
+var LINE_BREAK = '\n';
+var ROOT_PATH = '/'
+var INDEX_TEMPLATE = 'index';
+var ERROR_TEMPLATE = 'error';
 /*
  * Routes
  */
 // Index Page
-app.get('/', function(request, response, next) {
+app.get(ROOT_PATH, function(request, response, next) {
   fs.readFile(filename, function (err, data) {
-    if (err) throw err;
-    console.log(data.length);
+    if (err) {
+      response.render(ERROR_TEMPLATE, {
+        errorMessage: err
+      });
+      return;
+    }
     var result = [];
 
-    var lines = data.toString().split('\n');
-    console.log(lines);
+    var lines = data.toString().split(LINE_BREAK);
     
     for(var i=0, l = lines.length; i<l; i ++){
       if(!lines[i]){
@@ -82,36 +89,44 @@ app.get('/', function(request, response, next) {
         result.push(tokens[2]);
       }
     }
-    response.render('index', {
+    response.render(INDEX_TEMPLATE, {
       machineNames: result,
       helpers: {
         list: function(items) {
           var out = "<ul>";
-          for(var i=0, l=items.length; i<l; i++) {
+          for(var i = 0, l=items.length; i<l; i++) {
             out = out + "<li><p>" + items[i] + "</p></li>";
           }
           return out + "</ul>";
         }
       }
     });
+    return;
   });    
 });
 
 app.post('/save',function(request,response){
   var publicKey = request.body.publicKey;
-  publicKey = publicKey.trim();
   if(!publicKey) {
-    response.redirect('/')
+    response.redirect(ROOT_PATH);
   } 
-  var removeIndex = publicKey.indexOf('\n');
-  if(removeIndex!=-1){
+  var removeIndex = publicKey.indexOf(LINE_BREAK);
+  if(removeIndex >= 0){
     publicKey = publicKey.subStr(0,removeIndex);
   }
-  fs.appendFile(filename, publicKey + '\n', function(err, data) {
+  publicKey = publicKey.trim();
+  if(!publicKey) {
+    response.redirect(ROOT_PATH);
+  }
+  fs.appendFile(filename, publicKey + LINE_BREAK, function(err, data) {
     if(err) {
-      response.render('index', err);
+      response.render(ERROR_TEMPLATE, {
+        errorMessage: err
+      });
+      return;
     }
-    response.redirect('/');
+    response.redirect(ROOT_PATH);
+    return;
   });
 });
 
